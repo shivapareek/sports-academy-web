@@ -30,6 +30,9 @@
   --sec: clamp(6rem, 12vw, 11rem);
 }
 
+[hidden] {
+  display: none !important;
+}
 *,
 *::before,
 *::after {
@@ -567,6 +570,9 @@ ol {
   color: var(--on-night);
   opacity: 0;
   transition: opacity 0.6s var(--ease);
+}
+.menu[hidden] {
+  display: none;
 }
 .menu.is-open {
   opacity: 1;

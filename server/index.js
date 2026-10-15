@@ -38,7 +38,11 @@ app.use('/js', express.static(path.join(ROOT, 'public', 'js'), { maxAge: '1h' })
 app.use('/img', express.static(path.join(ROOT, 'public', 'img'), { ...staticOpts, maxAge: '30d' }));
 app.use('/vendor', express.static(path.join(ROOT, 'public', 'vendor'), { ...staticOpts, maxAge: '30d' }));
 app.use('/uploads', express.static(UPLOAD_DIR, { ...staticOpts, maxAge: '30d', setHeaders: (res) => res.setHeader('Content-Security-Policy', "default-src 'none'; img-src 'self'") }));
-app.use('/admin', express.static(path.join(ROOT, 'admin'), { index: 'index.html', maxAge: 0 }));
+app.use('/admin', (req, res, next) => {
+  res.setHeader('Content-Security-Policy', "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
+  res.setHeader('Cache-Control', 'no-store');
+  next();
+}, express.static(path.join(ROOT, 'admin'), { index: 'index.html' }));
 app.get('/favicon.ico', (req, res) => res.redirect(301, '/img/favicon.svg'));
 
 app.use(express.json({ limit: '1mb' }));

@@ -400,8 +400,8 @@
     var im = $('img', el);
     if (im) gsap.fromTo(im, { scale: 1.25 }, { scale: 1, duration: 2, ease: EASE, scrollTrigger: { trigger: el, start: 'top 85%', once: true } });
   });
-  // The page-header photo has no rounded corners.
-  $$('.phead__media[data-clip]').forEach(function (el) { gsap.set(el, { clipPath: 'inset(18% 8% 18% 8% round 0rem)' }); gsap.to(el, { clipPath: 'inset(0% 0% 0% 0% round 0rem)', duration: 1.8, delay: 0.3, ease: 'expo.inOut' }); });
+  // The page-header photo opens right away, without waiting for a scroll.
+  $$('.phead__frame[data-clip]').forEach(function (el) { gsap.to(el, { clipPath: 'inset(0% 0% 0% 0% round 1.75rem)', duration: 1.6, delay: 0.35, ease: 'expo.inOut', overwrite: true }); });
 
   // Parallax.
   $$('[data-parallax]').forEach(function (el) {

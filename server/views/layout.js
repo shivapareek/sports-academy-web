@@ -183,19 +183,26 @@ function safeColor(c, fallback) {
 }
 
 // Header used by every inner page.
+// With an image the header splits: copy on the left, the photo framed on the
+// right at a size its resolution can carry (never stretched full-bleed).
 function pageHead({ eyebrow, heading, intro, no, image, alt, extra }) {
-  return html`<section class="phead${image ? ' phead--image' : ''}">
-  <div class="phead__lanes" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
-  <div class="wrap phead__in">
-    <div class="phead__top">
+  const copy = html`<div class="phead__top">
       <span class="eyebrow">${eyebrow}</span>
       ${no ? html`<span class="phead__no mono">${no}</span>` : ''}
     </div>
     <h1 class="display phead__title" data-split>${title(heading)}</h1>
     ${intro ? html`<p class="phead__intro" data-reveal>${inline(intro)}</p>` : ''}
-    ${extra || ''}
-  </div>
-  ${image ? html`<div class="phead__media" data-clip>${require('./html').img(image, alt || '', { eager: true, sizes: '100vw' })}</div>` : ''}
+    ${extra || ''}`;
+  return html`<section class="phead${image ? ' phead--image' : ''}">
+  <div class="phead__lanes" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+  ${image
+    ? html`<div class="wrap phead__split">
+    <div class="phead__in">${copy}</div>
+    <figure class="phead__frame" data-clip>
+      <div class="bezel"><div class="bezel__core">${require('./html').img(image, alt || '', { eager: true, sizes: '(max-width: 980px) 92vw, 34vw' })}</div></div>
+    </figure>
+  </div>`
+    : html`<div class="wrap phead__in">${copy}</div>`}
 </section>`;
 }
 

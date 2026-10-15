@@ -402,6 +402,7 @@ const settingsFields = [
   { group: 'Social', key: 'x', type: 'text', label: 'X (Twitter) URL' },
   { group: 'Look', key: 'accent', type: 'color', label: 'Accent colour (track)' },
   { group: 'Look', key: 'volt', type: 'color', label: 'Highlight colour (volt)' },
+  { group: 'Look', key: 'aboutImage', type: 'image', label: 'About page photo', help: 'Portrait or square, at least 1200 px tall. Empty = the bundled coach photo.' },
   { group: 'Look', key: 'preloader', type: 'bool', label: 'Show the "on your marks" intro once per visit' },
   { group: 'Announcement', key: 'announceOn', type: 'bool', label: 'Show announcement bar' },
   { group: 'Announcement', key: 'announceText', type: 'text', label: 'Announcement text' },

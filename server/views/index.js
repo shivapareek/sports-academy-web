@@ -319,8 +319,9 @@ function about(req) {
       return [];
     }
   })();
-  const wideImg = aboutImgs.find((m) => m.slot === 'wide') || aboutImgs[0];
-  const wide = wideImg ? '/img/' + wideImg.file : (list('gallery')[0] || {}).image;
+  // Admin → Settings → About page photo; otherwise the coach-and-stopwatch photo.
+  const fallback = aboutImgs.find((m) => /coach/.test(m.file)) || aboutImgs.find((m) => m.slot === 'about') || aboutImgs[0];
+  const wide = settings().aboutImage || (fallback ? '/img/' + fallback.file : (list('gallery')[0] || {}).image);
   const body = html`
 ${pageHead({ eyebrow: t('about.eyebrow'), heading: t('about.title'), intro: t('about.intro'), no: '04 / 09', image: wide })}
 <section class="section story">

@@ -19,6 +19,7 @@ const billing = require('./billing');
 const publicApi = require('./routes/public');
 const portal = require('./routes/portal');
 const mountOps = require('./routes/admin-ops');
+const pdf = require('./pdf');
 
 const ROOT = path.join(__dirname, '..');
 const UPLOAD_DIR = path.resolve(process.env.UPLOAD_DIR || path.join(ROOT, 'uploads'));
@@ -35,7 +36,8 @@ app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader('X-Frame-Options', 'SAMEORIGIN');
-  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  // The admin needs the camera for QR check-in; everything else gets none.
+  res.setHeader('Permissions-Policy', `camera=(${req.path.startsWith('/admin') ? 'self' : ''}), microphone=(), geolocation=()`);
   next();
 });
 
@@ -46,7 +48,7 @@ app.use('/img', express.static(path.join(ROOT, 'public', 'img'), { ...staticOpts
 app.use('/vendor', express.static(path.join(ROOT, 'public', 'vendor'), { ...staticOpts, maxAge: '30d' }));
 app.use('/uploads', express.static(UPLOAD_DIR, { ...staticOpts, maxAge: '30d', setHeaders: (res) => res.setHeader('Content-Security-Policy', "default-src 'none'; img-src 'self'") }));
 app.use('/admin', (req, res, next) => {
-  res.setHeader('Content-Security-Policy', "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
+  res.setHeader('Content-Security-Policy', "default-src 'self'; img-src 'self' data: blob: https:; media-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
   res.setHeader('Cache-Control', 'no-store');
   next();
 }, express.static(path.join(ROOT, 'admin'), { index: 'index.html' }));
@@ -492,12 +494,21 @@ app.get('/data-request', page((req) => opsViews.dataRequest(req)));
 app.use('/portal', portal.router);
 
 // Invoice / receipt: by its secret link, by the family's portal session, or for staff.
-app.get('/invoice/:id', page((req, res) => {
+function invoiceAllowed(req) {
   const inv = (store.get().invoices || []).find((i) => i.id === req.params.id);
   if (!inv) return null;
   const staff = auth.currentSession(req);
   const ok = req.query.t === inv.token || (req.parent && req.parent.id === inv.familyId) || (staff && auth.can(staff.user, 'billing'));
-  if (!ok) return null;
+  return ok ? inv : null;
+}
+app.get('/invoice/:id.pdf', (req, res, next) => {
+  const inv = invoiceAllowed(req);
+  if (!inv) return next();
+  pdf.send(res, pdf.invoiceDoc(inv), `${inv.status === 'paid' ? 'Receipt' : 'Invoice'}-${inv.number}.pdf`, req.query.view === '1');
+});
+app.get('/invoice/:id', page((req, res) => {
+  const inv = invoiceAllowed(req);
+  if (!inv) return null;
   res.setHeader('Cache-Control', 'private, no-store');
   return opsViews.invoice(req, inv);
 }));

@@ -101,6 +101,12 @@ module.exports = function mount(admin, req0) {
     });
   });
 
+  admin.get('/ops/students/:id/report.pdf', perm('attendance'), (req, res) => {
+    const st = db().students.find((x) => x.id === req.params.id);
+    if (!st) return res.status(404).end();
+    require('../pdf').send(res, require('../pdf').reportDoc(st), `8-week-report-${st.name}-${academy.today()}.pdf`);
+  });
+
   admin.post('/ops/students', perm('students'), (req, res) => {
     const b = req.body || {};
     const data = cleanStudent(b);

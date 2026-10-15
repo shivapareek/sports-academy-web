@@ -131,7 +131,7 @@
         att.map(function (a) { return '<span class="att-dot is-' + a.status + '" title="' + esc(a.date + ' · ' + a.status + ' · ' + (a.method || '')) + '"></span>'; }).join('') + '</div>' +
         '<table class="table"><tbody>' + att.slice(0, 20).map(function (a) { return '<tr style="cursor:default"><td>' + d(a.date) + '</td><td>' + esc(a.status) + '</td><td class="muted">' + esc(a.method || '') + ' · ' + esc(a.by || '') + '</td></tr>'; }).join('') + '</tbody></table></div>' +
         // Fitness
-        '<div data-p="2" hidden><table class="table"><thead><tr><th>Date</th>' + METRICS.map(function (m) { return '<th>' + m[1] + '</th>'; }).join('') + '<th></th></tr></thead><tbody>' +
+        '<div data-p="2" hidden><p><a class="btn btn--ghost btn--sm" href="/api/admin/ops/students/' + s.id + '/report.pdf" download>' + icon('down') + '8-week report PDF</a></p><table class="table"><thead><tr><th>Date</th>' + METRICS.map(function (m) { return '<th>' + m[1] + '</th>'; }).join('') + '<th></th></tr></thead><tbody>' +
         x.fitness.map(function (t) { return '<tr style="cursor:default"><td>' + d(t.date) + '</td>' + METRICS.map(function (m) { return '<td>' + (t[m[0]] != null ? esc(t[m[0]]) + ' ' + m[2] : '—') + '</td>'; }).join('') + '<td><button class="icon-btn" data-delfit="' + t.id + '" title="Delete">' + icon('trash') + '</button></td></tr>'; }).join('') +
         '</tbody></table><form class="form card card__pad" id="fitf" style="margin-top:12px"><h2>Add test</h2><div class="fieldset"><div class="f"><label>Date</label><input type="date" name="date" value="' + todayIST() + '"></div>' +
         METRICS.map(function (m) { return '<div class="f"><label>' + m[1] + ' (' + m[2] + ')</label><input type="number" step="0.01" name="' + m[0] + '"></div>'; }).join('') +
@@ -141,7 +141,7 @@
         '<div class="f"><label>Effort today</label><select name="effort"><option value="0">—</option><option value="5">●●●●● Outstanding</option><option value="4">●●●● Great</option><option value="3">●●● Good</option><option value="2">●● Below usual</option><option value="1">● Needs a chat</option></select></div><button class="btn btn--sm" type="submit">Post feedback</button></form>' +
         '<div class="feed" style="margin-top:12px">' + x.feedback.map(function (fb) { return '<div style="display:block"><span class="mono muted">' + d(fb.date) + ' · ' + esc(fb.by) + '</span><p>' + esc(fb.text) + '</p><button class="reset-link" data-delfb="' + fb.id + '">Delete</button></div>'; }).join('') + '</div></div>' +
         // Fees
-        '<div data-p="4" hidden><table class="table"><tbody>' + x.invoices.map(function (i) { return '<tr style="cursor:default"><td><a href="/invoice/' + i.id + '?t=' + i.token + '" target="_blank" rel="noopener">' + esc(i.number) + '</a></td><td>' + esc(i.period || i.lines[0].label) + '</td><td>' + money(i.total) + '</td><td>' + tag(i.status) + '</td></tr>'; }).join('') + '</tbody></table></div>';
+        '<div data-p="4" hidden><table class="table"><tbody>' + x.invoices.map(function (i) { return '<tr style="cursor:default"><td><a href="/invoice/' + i.id + '.pdf?t=' + i.token + '" download>' + esc(i.number) + ' (PDF)</a></td><td>' + esc(i.period || i.lines[0].label) + '</td><td>' + money(i.total) + '</td><td>' + tag(i.status) + '</td></tr>'; }).join('') + '</tbody></table></div>';
       var dr = A.drawer(s.name + ' · ' + s.code, body);
       $('#stabs', dr).addEventListener('click', function (e) {
         var b = e.target.closest('[data-t]'); if (!b) return;
@@ -234,31 +234,102 @@
         return r;
       }).catch(function (e) { fail(e); throw e; });
     }
-    // Camera scanning uses the browser's BarcodeDetector (Chrome/Edge/Android, Safari 17+).
+    // QR scanning works in every modern browser: the native BarcodeDetector
+    // where it exists (fast), otherwise the bundled jsQR decoder on video
+    // frames. Without live camera access (old browser or a plain-http page)
+    // a photo taken with the phone camera is decoded instead.
+    var jsqrLoading = null;
+    function loadJsQR() {
+      if (window.jsQR) return Promise.resolve(window.jsQR);
+      if (!jsqrLoading) jsqrLoading = new Promise(function (resolve, reject) {
+        var sc = document.createElement('script');
+        sc.src = '/vendor/jsQR.js';
+        sc.onload = function () { resolve(window.jsQR); };
+        sc.onerror = function () { jsqrLoading = null; reject(new Error('Could not load the QR decoder.')); };
+        document.head.appendChild(sc);
+      });
+      return jsqrLoading;
+    }
+    function decodeCanvas(canvas) {
+      var ctx = canvas.getContext('2d', { willReadFrequently: true });
+      var img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      var r = window.jsQR(img.data, img.width, img.height, { inversionAttempts: 'attemptBoth' });
+      return r && r.data;
+    }
+    function decodeFile(file) {
+      return loadJsQR().then(function () {
+        return new Promise(function (resolve, reject) {
+          var url = URL.createObjectURL(file);
+          var im = new Image();
+          im.onload = function () {
+            // Downscale big phone photos; QR codes decode fine at ~1000 px.
+            var scale = Math.min(1, 1000 / Math.max(im.width, im.height));
+            var c = document.createElement('canvas');
+            c.width = Math.round(im.width * scale);
+            c.height = Math.round(im.height * scale);
+            c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+            URL.revokeObjectURL(url);
+            var code = decodeCanvas(c);
+            code ? resolve(code) : reject(new Error('No QR code found in that photo. Hold the card flat and try again.'));
+          };
+          im.onerror = function () { reject(new Error('Could not read that image.')); };
+          im.src = url;
+        });
+      });
+    }
     function scanner() {
-      if (!('BarcodeDetector' in window) || !navigator.mediaDevices) {
-        toast('This browser cannot scan. Type the code instead, or use Chrome on Android.', 'err');
-        $('#codein').focus();
-        return;
-      }
-      var m = A.modal('<div class="drawer__head"><h2>Scan check-in QR</h2><button class="icon-btn" data-x aria-label="Close">' + icon('close') + '</button></div><div class="drawer__body"><video class="qr-video" playsinline muted></video><p class="muted" id="qrmsg">Point the camera at the QR code on the athlete’s card.</p></div>', 'modal--sm');
-      var video = $('video', m.el), stream = null, stop = false, last = '', lastAt = 0;
-      var detector = new window.BarcodeDetector({ formats: ['qr_code'] });
+      var live = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.isSecureContext);
+      var m = A.modal('<div class="drawer__head"><h2>Scan check-in QR</h2><button class="icon-btn" data-x aria-label="Close">' + icon('close') + '</button></div>' +
+        '<div class="drawer__body">' + (live ? '<video class="qr-video" playsinline muted></video>' : '') +
+        '<p class="muted" id="qrmsg">' + (live ? 'Point the camera at the QR code on the athlete’s card.' : 'Live camera is not available here (it needs HTTPS and a recent browser). Take a photo of the card instead:') + '</p>' +
+        '<label class="btn btn--ghost btn--sm" style="justify-self:start">' + icon('image') + 'Scan from a photo<input type="file" accept="image/*" capture="environment" hidden id="qrfile"></label></div>', 'modal--sm');
+      var msg = $('#qrmsg', m.el), stream = null, stop = false;
       function close() { stop = true; if (stream) stream.getTracks().forEach(function (t) { t.stop(); }); m.close(); }
       $('[data-x]', m.el).addEventListener('click', close);
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(function (s) {
-        stream = s; video.srcObject = s; video.play();
+      var seen = {};
+      function handle(code) {
+        // Each card is checked in once per scanner session; the camera keeps seeing it.
+        if (!code || seen[code]) return;
+        seen[code] = true;
+        if (navigator.vibrate) navigator.vibrate(60);
+        checkIn(code).then(function (r) { msg.textContent = (r.already ? 'Already checked in: ' : '✓ ') + r.student.name + ' (' + r.status + '). Scan the next card.'; }).catch(function (e) { delete seen[code]; msg.textContent = e.message; });
+      }
+      $('#qrfile', m.el).addEventListener('change', function (e) {
+        var f = e.target.files[0];
+        if (!f) return;
+        msg.textContent = 'Reading the photo…';
+        decodeFile(f).then(handle).catch(function (err) { msg.textContent = err.message; });
+        e.target.value = '';
+      });
+      if (!live) return;
+      var video = $('video', m.el);
+      var canvas = document.createElement('canvas');
+      var native = 'BarcodeDetector' in window ? new window.BarcodeDetector({ formats: ['qr_code'] }) : null;
+      var detect = native
+        ? function () { return native.detect(video).then(function (codes) { return codes[0] && codes[0].rawValue; }); }
+        : function () {
+            return loadJsQR().then(function () {
+              if (!video.videoWidth) return null;
+              var scale = Math.min(1, 640 / video.videoWidth);
+              canvas.width = Math.round(video.videoWidth * scale);
+              canvas.height = Math.round(video.videoHeight * scale);
+              canvas.getContext('2d', { willReadFrequently: true }).drawImage(video, 0, 0, canvas.width, canvas.height);
+              return decodeCanvas(canvas);
+            });
+          };
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false }).then(function (st) {
+        stream = st;
+        video.srcObject = st;
+        video.setAttribute('playsinline', '');
+        return video.play();
+      }).then(function () {
         (function loop() {
-          if (stop) return;
-          detector.detect(video).then(function (codes) {
-            var c = codes[0] && codes[0].rawValue;
-            if (c && (c !== last || Date.now() - lastAt > 4000)) {
-              last = c; lastAt = Date.now();
-              checkIn(c).then(function (r) { $('#qrmsg', m.el).textContent = '✓ ' + r.student.name + ' (' + r.status + '). Scan the next card.'; }).catch(function (e) { $('#qrmsg', m.el).textContent = e.message; });
-            }
-          }).catch(function () {}).then(function () { setTimeout(loop, 350); });
+          // The modal can also be closed with Esc or a click outside: release the camera then too.
+          if (!m.el.isConnected) stop = true;
+          if (stop) { stream.getTracks().forEach(function (t) { t.stop(); }); return; }
+          detect().then(handle).catch(function () {}).then(function () { setTimeout(loop, native ? 300 : 250); });
         })();
-      }).catch(function () { $('#qrmsg', m.el).textContent = 'Camera permission was denied.'; });
+      }).catch(function () { msg.textContent = 'Camera permission was denied or no camera was found. Use “Scan from a photo”.'; });
     }
     load();
   });
@@ -309,7 +380,7 @@
           : '<span></span><a class="btn btn--ghost btn--sm" href="/invoice/' + i.id + '?t=' + i.token + '" target="_blank" rel="noopener">Open receipt</a>';
         var dr = A.drawer(i.number, '<p>' + tag(i.status) + ' · ' + esc(i.billTo.name) + ' · ' + esc(i.billTo.phone) + '</p><table class="table"><tbody>' + lines + '</tbody></table>' +
           '<p class="muted" style="font-size:13px">Issued ' + d(i.date) + ' · due ' + d(i.dueDate) + (i.reminders && i.reminders.length ? ' · reminders: ' + esc(i.reminders.join(', ')) : '') + (i.payment ? ' · paid via ' + esc(i.payment.method || i.payment.provider) + (i.payment.id ? ' (' + esc(i.payment.id) + ')' : '') : '') + '</p>' +
-          '<p><a href="/invoice/' + i.id + '?t=' + i.token + '" target="_blank" rel="noopener">Open invoice page</a> · <button class="reset-link" data-copy="' + esc(location.origin + '/invoice/' + i.id + '?t=' + i.token) + '">Copy payment link</button></p>' +
+          '<p><a href="/invoice/' + i.id + '.pdf?t=' + i.token + '" download>Download PDF</a> · <a href="/invoice/' + i.id + '?t=' + i.token + '" target="_blank" rel="noopener">Open invoice page</a> · <button class="reset-link" data-copy="' + esc(location.origin + '/invoice/' + i.id + '?t=' + i.token) + '">Copy payment link</button></p>' +
           (i.status === 'unpaid' ? '<form class="form card card__pad" id="pmf"><h2>Record an offline payment</h2><div class="fieldset"><div class="f"><label>Method</label><select name="method"><option>Cash</option><option>UPI (offline)</option><option>Bank transfer</option><option>Cheque</option><option>Card (POS)</option></select></div><div class="f"><label>Reference</label><input type="text" name="ref" placeholder="UTR / cheque no."></div></div></form>' : ''), foot);
         dr.addEventListener('click', function (e2) {
           var c = e2.target.closest('[data-copy]'); if (c) navigator.clipboard.writeText(c.getAttribute('data-copy')).then(function () { toast('Link copied'); });

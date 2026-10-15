@@ -119,12 +119,12 @@ function log(entry) {
   store.save();
 }
 
-async function sendEmail(to, subject, body, event) {
+async function sendEmail(to, subject, body, event, attachments) {
   if (!to) return;
-  if (!channels().email) return log({ channel: 'email', to, event, subject, body, status: 'demo' });
+  if (!channels().email) return log({ channel: 'email', to, event, subject, body: body + (attachments && attachments.length ? `\n[attached: ${attachments.map((a) => a.filename).join(', ')}]` : ''), status: 'demo' });
   try {
-    await mailer().sendMail({ from: process.env.MAIL_FROM || process.env.SMTP_FROM || 'no-reply@localhost', to, subject, text: body });
-    log({ channel: 'email', to, event, subject, body, status: 'sent' });
+    await mailer().sendMail({ from: process.env.MAIL_FROM || process.env.SMTP_FROM || 'no-reply@localhost', to, subject, text: body, attachments: attachments || [] });
+    log({ channel: 'email', to, event, subject, body: body + (attachments && attachments.length ? `\n[attached: ${attachments.map((a) => a.filename).join(', ')}]` : ''), status: 'sent' });
   } catch (e) {
     log({ channel: 'email', to, event, subject, body, status: 'failed', error: String(e.message).slice(0, 300) });
   }
@@ -165,8 +165,8 @@ async function sendWhatsApp(phone, body, event, tpl, vars) {
   }
 }
 
-// send('trial.confirm', { phone, email }, vars)
-function send(event, to, vars = {}) {
+// send('trial.confirm', { phone, email }, vars, { attachments: [{ filename, content }] })
+function send(event, to, vars = {}, opts = {}) {
   const db = store.get();
   const s = db.settings;
   const all = { academy: s.name, phone: s.phone, ...vars };
@@ -174,7 +174,7 @@ function send(event, to, vars = {}) {
   const subject = render(tpl.subject, all);
   const body = render(tpl.body, all);
   const jobs = [];
-  if (to.email) jobs.push(sendEmail(to.email, subject, body, event));
+  if (to.email) jobs.push(Promise.resolve(opts.attachments).then((att) => sendEmail(to.email, subject, body, event, att)));
   if (to.phone) jobs.push(sendWhatsApp(to.phone, body, event, tpl, all));
   // Never let a failed message break the request that triggered it.
   return Promise.all(jobs).catch((e) => console.error('notify', e));

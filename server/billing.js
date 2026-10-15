@@ -141,7 +141,10 @@ function applyPayment(inv, payment, req) {
     }
   }
   store.save();
-  notify.send('payment.received', { phone: inv.billTo && inv.billTo.phone, email: inv.billTo && inv.billTo.email }, { name: inv.billTo && inv.billTo.name, amount: money(inv.total), number: inv.number, link: invoiceLink(inv, req) });
+  const email = inv.billTo && inv.billTo.email;
+  // The receipt PDF goes with the email (built only when there is an email to send).
+  const attachments = email ? require('./pdf').buffer(require('./pdf').invoiceDoc(inv)).then((content) => [{ filename: `Receipt-${inv.number.replace(/\//g, '-')}.pdf`, content, contentType: 'application/pdf' }]).catch(() => []) : null;
+  notify.send('payment.received', { phone: inv.billTo && inv.billTo.phone, email }, { name: inv.billTo && inv.billTo.name, amount: money(inv.total), number: inv.number, link: invoiceLink(inv, req) }, { attachments });
   return inv;
 }
 

@@ -10,6 +10,7 @@ const files = [
   ['gsap/dist/ScrollTrigger.min.js', 'ScrollTrigger.min.js'],
   ['gsap/dist/SplitText.min.js', 'SplitText.min.js'],
   ['lenis/dist/lenis.min.js', 'lenis.min.js'],
+  ['jsqr/dist/jsQR.js', 'jsQR.js'],
 ];
 
 fs.mkdirSync(out, { recursive: true });

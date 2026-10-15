@@ -214,3 +214,20 @@ test('privacy erasure removes personal data but keeps invoices anonymised', asyn
   const invs = await (await req('GET', '/api/admin/ops/invoices')).json();
   assert.ok(invs.some((i) => i.billTo.name === 'Erased (DPDP request)'));
 });
+
+test('invoices and reports download as real PDF files', async () => {
+  const invs = await (await req('GET', '/api/admin/ops/invoices')).json();
+  const inv = invs.find((i) => i.status === 'paid');
+  let r = await fetch(`${base}/invoice/${inv.id}.pdf?t=${inv.token}`);
+  assert.strictEqual(r.status, 200);
+  assert.strictEqual(r.headers.get('content-type'), 'application/pdf');
+  assert.match(r.headers.get('content-disposition'), /attachment; filename="Receipt-/);
+  const buf = Buffer.from(await r.arrayBuffer());
+  assert.strictEqual(buf.subarray(0, 5).toString(), '%PDF-');
+  assert.strictEqual((await fetch(`${base}/invoice/${inv.id}.pdf?t=wrong`)).status, 404);
+
+  const students = await (await req('GET', '/api/admin/ops/students')).json();
+  r = await req('GET', `/api/admin/ops/students/${students[0].id}/report.pdf`);
+  assert.strictEqual(r.status, 200);
+  assert.strictEqual(Buffer.from(await r.arrayBuffer()).subarray(0, 5).toString(), '%PDF-');
+});

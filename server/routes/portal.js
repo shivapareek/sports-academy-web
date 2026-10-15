@@ -9,6 +9,7 @@ const academy = require('../academy');
 const billing = require('../billing');
 const payments = require('../payments');
 const views = require('../views/portal');
+const pdf = require('../pdf');
 
 const COOKIE = 'vega_parent';
 const DAYS = 30;
@@ -131,6 +132,11 @@ const page = (fn) => (req, res, next) => {
 
 router.get('/', need, page((req) => views.home(req)));
 router.get('/child/:id', need, page((req) => views.child(req, req.params.id)));
+router.get('/report/:id.pdf', need, (req, res, next) => {
+  const st = (db().students || []).find((s) => s.id === req.params.id && s.familyId === req.parent.id);
+  if (!st) return next();
+  pdf.send(res, pdf.reportDoc(st), `8-week-report-${st.name}-${academy.today()}.pdf`);
+});
 router.get('/report/:id', need, page((req) => views.report(req, req.params.id)));
 router.get('/fees', need, page((req) => views.fees(req)));
 router.get('/schedule', need, page((req) => views.schedule(req)));

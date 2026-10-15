@@ -268,7 +268,7 @@ function child(req, id) {
         ${attendanceCalendar(st)}
       </section>
       <section class="pbox">
-        <div class="pbox__head"><h2 class="pbox__title">Fitness tests</h2><a class="btn btn--ink btn--sm" href="/portal/report/${st.id}"><span class="btn__label">8-week report</span><span class="btn__ic">${icon('arrow')}</span></a></div>
+        <div class="pbox__head"><h2 class="pbox__title">Fitness tests</h2><span class="actions"><a class="btn btn--ink btn--sm" href="/portal/report/${st.id}"><span class="btn__label">8-week report</span><span class="btn__ic">${icon('arrow')}</span></a><a class="btn btn--primary btn--sm" href="/portal/report/${st.id}.pdf" download><span class="btn__label">PDF</span><span class="btn__ic">${icon('arrow')}</span></a></span></div>
         ${fit.length
           ? html`<div class="metrics">${METRICS.map((m) => {
               const pts = fit.filter((x) => x[m.key] != null && x[m.key] !== '').map((x) => ({ v: x[m.key], d: x.date }));
@@ -326,7 +326,7 @@ function report(req, id) {
 <link rel="stylesheet" href="/css/print.css">
 </head><body>
 <div class="doc">
-  <div class="doc__bar noprint"><a href="/portal/child/${st.id}">← Back</a><button type="button" data-print>Download PDF / Print</button></div>
+  <div class="doc__bar noprint"><a href="/portal/child/${st.id}">← Back</a><span><a class="docbtn" href="/portal/report/${st.id}.pdf" download>Download PDF</a><button type="button" class="ghost" data-print>Print</button></span></div>
   <header class="doc__head">
     <div><b class="doc__brand">${s.shortName || s.name}</b><span>${s.name}</span></div>
     <div class="doc__right"><span class="doc__kicker">8-week progress report</span><span>${fmtDate(academy.addDays(academy.today(), -56))} – ${fmtDate(academy.today())}</span></div>
@@ -404,7 +404,7 @@ function invRow(i, payable) {
   return html`<div class="inv">
     <div class="inv__main"><b>${i.period ? billing.periodLabel(i.period) : i.lines[0] ? i.lines[0].label : 'Invoice'}</b><span class="mono">${i.number} · ${i.status === 'paid' ? `Paid ${fmtDate(i.paidAt)}${i.payment && i.payment.method ? ' · ' + i.payment.method : ''}` : `Due ${fmtDate(i.dueDate)}`}</span></div>
     <b class="inv__amt">${money(i.total)}</b>
-    <a class="btn btn--ink btn--sm" href="/invoice/${i.id}?t=${i.token}" target="_blank" rel="noopener"><span class="btn__label">${i.status === 'paid' ? 'Receipt' : 'Invoice'}</span><span class="btn__ic">${icon('arrow')}</span></a>
+    <a class="btn btn--ink btn--sm" href="/invoice/${i.id}.pdf?t=${i.token}" download><span class="btn__label">${i.status === 'paid' ? 'Receipt PDF' : 'Invoice PDF'}</span><span class="btn__ic">${icon('arrow')}</span></a>
     ${payable ? html`<button class="btn btn--primary btn--sm" type="button" data-pay-invoice="${i.id}" data-token="${i.token}"><span class="btn__label">Pay ${money(i.total)}</span><span class="btn__ic">${icon('arrow')}</span></button>` : ''}
   </div>`;
 }

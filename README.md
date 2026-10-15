@@ -7,7 +7,7 @@ A dynamic website for a multi-sport academy (fictional client: Vega Sports Acade
 ```bash
 npm install
 npm start            # http://localhost:3000   admin: http://localhost:3000/admin/
-npm test             # 14 end-to-end checks: forms, auth/CSRF, escaping, booking, payments, GST, portal, QR, erasure
+npm test             # 15 end-to-end checks: forms, auth/CSRF, escaping, booking, payments, GST, portal, QR, erasure, PDFs
 ```
 
 First sign-in: **admin@vega.local / ChangeMe@123**. You can also set `ADMIN_PASSWORD` before the first start. With the default password, the panel asks you to change it straight away.
@@ -56,7 +56,7 @@ Roles: **Admin** (everything); **Editor** (content, leads, students, attendance)
 - Every family with active athletes gets a monthly invoice on the billing day (Settings → Fees & GST), with a WhatsApp/email payment link.
 - Each child is billed for each program they train in. The **sibling discount** (default 10%) applies automatically to every child except the one with the highest fee.
 - Invoices are **GST tax invoices** once you enter your GSTIN. They have sequential numbers per financial year (`VSA/2026-27/0001`), SAC code, taxable value, CGST/SGST and the amount in words. Without a GSTIN they say "Not registered under GST".
-- Parents pay online through **Razorpay** (UPI, cards, netbanking, wallets) from the portal or the invoice link. The paid invoice becomes the **receipt** (Download PDF / Print).
+- Parents pay online through **Razorpay** (UPI, cards, netbanking, wallets) from the portal or the invoice link. The paid invoice becomes the **receipt**: a PDF download, also attached to the confirmation email.
 - **UPI AutoPay**: in the portal, a parent approves a monthly mandate once (Razorpay Subscriptions). Each charge pays the oldest unpaid invoice automatically, and families on AutoPay get no reminders.
 - **Reminders**: three days before the due date, then an overdue notice (default 3 days after). Staff can also send one by hand.
 - **Offline payments**: record cash, offline UPI, bank transfer, cheque or card (POS) against an invoice. The receipt is sent automatically.
@@ -66,7 +66,7 @@ Roles: **Admin** (everything); **Editor** (content, leads, students, attendance)
 ### Parent portal (`/portal`)
 Parents sign in with their mobile number or email and a password. The first link arrives on WhatsApp/email when an admission is enrolled, and "Forgot password" sends a reset link. In the portal they find:
 - Every child: attendance calendar (8 weeks), next session, the **QR check-in card**, fitness test graphs (20 m sprint, broad jump, plank, beep test) and coach feedback with an effort rating.
-- The **8-week progress report** (Download PDF / Print).
+- The **8-week progress report** (view, or download as a PDF).
 - Fees: amount due, Pay buttons, payment history and receipts, and UPI AutoPay on/off.
 - Schedule for the next 7 days (holidays marked) and notices.
 - Account: photo/video consent per child, marketing consent, email, password, and a link to privacy requests.
@@ -75,7 +75,7 @@ Parents sign in with their mobile number or email and a password. The first link
 - **Attendance & QR** (admin, works on a phone):
   - pick the batch and date
   - tap Present, Late or Absent, or "Mark rest present"
-  - **scan the QR** on the child's portal card with the phone camera, or type the code. A scan after the start time + 10 min is marked late.
+  - **scan the QR** on the child's portal card: live camera in any modern browser, a photo of the card, or type the code. A scan after the start time + 10 min is marked late. Each card counts once per scanning session.
   - medical notes show next to the athlete
 - On the student page, coaches add fitness tests and feedback. Parents see them immediately.
 
@@ -128,8 +128,8 @@ Set these as environment variables on the server (see `.env.example`). Without t
 
 Other notes:
 - Confirm your **GST rate and SAC code with your CA**. The defaults are 18% and SAC 999723.
-- Invoices and reports download as PDF through the browser's print dialog ("Save as PDF").
-- Camera QR scanning uses the browser's BarcodeDetector: Chrome/Edge on Android and desktop, Safari 17+. Other browsers can type the code.
+- **PDFs** are real files made on the server (PDFKit, with the Archivo font embedded so ₹ prints correctly): GST invoices and receipts (`/invoice/<id>.pdf`), and the 8-week report (parent portal and admin). The payment receipt PDF is also attached to the confirmation email.
+- **QR check-in** works in every modern browser. It uses the native BarcodeDetector where it exists, and otherwise the bundled jsQR decoder on the camera video. Live camera needs HTTPS (or localhost). Without it, or on an old phone, **"Scan from a photo"** takes a picture with the phone camera and decodes that. Typing the code always works too.
 
 ## Demo logins (fresh database)
 
@@ -177,6 +177,7 @@ Any Node 18+ host works, for example a VPS with PM2 and Nginx, Render, Railway o
 - `server/routes/admin-ops.js`: students, attendance, fitness, feedback, invoices, bookings, messages, privacy
 - `server/billing.js` (invoices, GST, sibling discount, reminders, scheduler), `server/payments.js` (Razorpay), `server/notify.js` (WhatsApp/email), `server/academy.js` (seats, waiting list, slots), `server/otp.js`, `server/reviews.js`
 - `server/seed-ops.js`: version-2 demo data and migration
+- `server/pdf.js`, `server/fonts/`: PDF invoices/receipts and reports (fonts under the SIL Open Font License)
 - `server/schema.js`: content types and settings (this drives the admin)
 - `server/texts.js`: page copy with defaults
 - `server/seed.js`: demo content for the first start

@@ -46,7 +46,8 @@ function invoice(req, inv) {
     <a href="${req.parent ? '/portal/fees' : '/'}">← Back</a>
     <span>
       ${inv.status === 'unpaid' ? html`<button type="button" class="pay" data-pay-invoice="${inv.id}" data-token="${inv.token}">Pay ${money(inv.total)} online</button>` : ''}
-      <button type="button" data-print>Download PDF / Print</button>
+      <a class="docbtn" href="/invoice/${inv.id}.pdf?t=${inv.token}" download>Download PDF</a>
+      <button type="button" class="ghost" data-print>Print</button>
     </span>
   </div>
   ${inv.status === 'unpaid' && cfg.provider === 'demo' ? html`<p class="doc__demo noprint">Demo mode: the payment is simulated until Razorpay keys are configured.</p>` : ''}

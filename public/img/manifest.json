@@ -1,0 +1,743 @@
+[
+  {
+    "file": "hero-cricket-683.webp",
+    "slot": "hero",
+    "sport": "cricket",
+    "sizes": {
+      "480": "hero-cricket-480.webp",
+      "683": "hero-cricket-683.webp"
+    },
+    "width": 683,
+    "height": 1024,
+    "alt": "Batter in whites and helmet driving the ball, dark trees behind",
+    "focal": "40% 45%",
+    "credit": {
+      "author": "Barry Gill (nidderdalecricketarchive.co.uk)",
+      "title": "dvb5",
+      "url": "https://www.flickr.com/photos/42482371@N00/7326160422",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "cropped, resized, re-encoded"
+    }
+  },
+  {
+    "file": "hero-football-683.webp",
+    "slot": "hero",
+    "sport": "football",
+    "sizes": {
+      "480": "hero-football-480.webp",
+      "683": "hero-football-683.webp"
+    },
+    "width": 683,
+    "height": 1024,
+    "alt": "Footballer leaning into a sprint as he drives the ball forward",
+    "focal": "50% 40%",
+    "credit": {
+      "author": "Tsutomu Takasu",
+      "title": "J.League Division 1",
+      "url": "https://www.flickr.com/photos/gowestphoto/3921823423",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "resized, re-encoded"
+    }
+  },
+  {
+    "file": "hero-badminton-452.webp",
+    "slot": "hero",
+    "sport": "badminton",
+    "sizes": {
+      "452": "hero-badminton-452.webp"
+    },
+    "width": 452,
+    "height": 678,
+    "alt": "Badminton player stretching to return a shuttle on a green indoor court",
+    "focal": "45% 40%",
+    "credit": {
+      "author": "陈文",
+      "title": "Ponytail in speed",
+      "url": "https://www.flickr.com/photos/univers-finder/10916188076",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "cropped, resized, re-encoded"
+    }
+  },
+  {
+    "file": "hero-swimming-683.webp",
+    "slot": "hero",
+    "sport": "swimming",
+    "sizes": {
+      "480": "hero-swimming-480.webp",
+      "683": "hero-swimming-683.webp"
+    },
+    "width": 683,
+    "height": 1024,
+    "alt": "Swimmer in cap and goggles surging forward mid-breaststroke",
+    "focal": "50% 40%",
+    "credit": {
+      "author": "Paul De Los Reyes",
+      "title": "JMHS League Finals Preview",
+      "url": "https://www.flickr.com/photos/noizephotography/3522687765",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "cropped, resized, re-encoded"
+    }
+  },
+  {
+    "file": "hero-athletics-671.webp",
+    "slot": "hero",
+    "sport": "athletics",
+    "sizes": {
+      "480": "hero-athletics-480.webp",
+      "671": "hero-athletics-671.webp"
+    },
+    "width": 671,
+    "height": 1006,
+    "alt": "Sprinter powering down a red track lane beside a row of hurdles",
+    "focal": "60% 40%",
+    "credit": {
+      "author": "West Point - The U.S. Military Academy",
+      "title": "Domonick Sylve 3",
+      "url": "https://www.flickr.com/photos/west_point/5632740166",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "cropped, resized, re-encoded"
+    }
+  },
+  {
+    "file": "hero-basketball-683.webp",
+    "slot": "hero",
+    "sport": "basketball",
+    "sizes": {
+      "480": "hero-basketball-480.webp",
+      "683": "hero-basketball-683.webp"
+    },
+    "width": 683,
+    "height": 1024,
+    "alt": "Basketball player soaring toward the hoop for a layup in a dark arena",
+    "focal": "50% 40%",
+    "credit": {
+      "author": "Air21 Express",
+      "title": "Air 21 Express vs TNT Phone Pals April 22, 2008",
+      "url": "https://www.flickr.com/photos/air21/2434745422",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "resized, re-encoded"
+    }
+  },
+  {
+    "file": "program-cricket-681.webp",
+    "slot": "program",
+    "sport": "cricket",
+    "sizes": {
+      "681": "program-cricket-681.webp"
+    },
+    "width": 681,
+    "height": 851,
+    "alt": "Young batter in helmet and pads ready to play a ball in practice nets",
+    "focal": "50% 40%",
+    "credit": {
+      "author": "Ishtiaq Sobhan",
+      "title": "_DSC3827 copy",
+      "url": "https://www.flickr.com/photos/sourovphotography/15302314704",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "cropped, resized, re-encoded"
+    }
+  },
+  {
+    "file": "program-football-680.webp",
+    "slot": "program",
+    "sport": "football",
+    "sizes": {
+      "680": "program-football-680.webp"
+    },
+    "width": 680,
+    "height": 850,
+    "alt": "Footballer in a red top volleying a ball near the goal",
+    "focal": "50% 40%",
+    "credit": {
+      "author": "Jarrett Campbell",
+      "title": "IMG_0107",
+      "url": "https://www.flickr.com/photos/wjarrettc/126021025",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "cropped, resized, re-encoded"
+    }
+  },
+  {
+    "file": "program-badminton-819.webp",
+    "slot": "program",
+    "sport": "badminton",
+    "sizes": {
+      "640": "program-badminton-640.webp",
+      "819": "program-badminton-819.webp"
+    },
+    "width": 819,
+    "height": 1024,
+    "alt": "Badminton player lunging to play a shuttle in an indoor hall",
+    "focal": "50% 40%",
+    "credit": {
+      "author": "Badmintonclub Uzwil",
+      "title": "Nicky Bach",
+      "url": "https://www.flickr.com/photos/bcuzwil/10350643764",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "cropped, resized, re-encoded"
+    }
+  },
+  {
+    "file": "program-swimming-546.webp",
+    "slot": "program",
+    "sport": "swimming",
+    "sizes": {
+      "546": "program-swimming-546.webp"
+    },
+    "width": 546,
+    "height": 683,
+    "alt": "Butterfly swimmer breaking through the water with arms spread wide",
+    "focal": "50% 40%",
+    "credit": {
+      "author": "West Point - The U.S. Military Academy",
+      "title": "gilligan 15 jan 10 - 41",
+      "url": "https://www.flickr.com/photos/west_point/4278434833",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "cropped, resized, re-encoded"
+    }
+  },
+  {
+    "file": "program-athletics-819.webp",
+    "slot": "program",
+    "sport": "athletics",
+    "sizes": {
+      "640": "program-athletics-640.webp",
+      "819": "program-athletics-819.webp"
+    },
+    "width": 819,
+    "height": 1024,
+    "alt": "Two runners racing around the bend of a blue athletics track",
+    "focal": "50% 40%",
+    "credit": {
+      "author": "azwalbum",
+      "title": "244 laura speeleveld 150m",
+      "url": "https://www.flickr.com/photos/azwalbum/15790216159",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "cropped, resized, re-encoded"
+    }
+  },
+  {
+    "file": "program-basketball-683.webp",
+    "slot": "program",
+    "sport": "basketball",
+    "sizes": {
+      "683": "program-basketball-683.webp"
+    },
+    "width": 683,
+    "height": 854,
+    "alt": "Players leaping for a rebound under the basketball hoop",
+    "focal": "50% 40%",
+    "credit": {
+      "author": "San Francisco Foghorn",
+      "title": "Marco Petrovic (10) and Avery Johnson (33)",
+      "url": "https://www.flickr.com/photos/sffoghorn/5216012670",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "cropped, resized, re-encoded"
+    }
+  },
+  {
+    "file": "program-tennis-761.webp",
+    "slot": "program",
+    "sport": "tennis",
+    "sizes": {
+      "640": "program-tennis-640.webp",
+      "761": "program-tennis-761.webp"
+    },
+    "width": 761,
+    "height": 951,
+    "alt": "Tennis player seen from above hitting a backhand, his shadow stretched across the court",
+    "focal": "50% 40%",
+    "credit": {
+      "author": "kyle tsui",
+      "title": "John Isner at the Legg Mason Tennis Classic",
+      "url": "https://www.flickr.com/photos/wackyland/6019459963/",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "cropped, resized, re-encoded"
+    }
+  },
+  {
+    "file": "program-table-tennis-546.webp",
+    "slot": "program",
+    "sport": "table tennis",
+    "sizes": {
+      "546": "program-table-tennis-546.webp"
+    },
+    "width": 546,
+    "height": 683,
+    "alt": "Table tennis player watching the ball closely as he plays a backhand",
+    "focal": "50% 40%",
+    "credit": {
+      "author": "Gaël Marziou",
+      "title": "SHILTON Billy (GBR) IMG_6644_DxO",
+      "url": "https://www.flickr.com/photos/gmarziou/14158370202",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "cropped, resized, re-encoded"
+    }
+  },
+  {
+    "file": "facility-ground-1024.webp",
+    "slot": "facility",
+    "sport": "ground",
+    "sizes": {
+      "640": "facility-ground-640.webp",
+      "1024": "facility-ground-1024.webp"
+    },
+    "width": 1024,
+    "height": 683,
+    "alt": "Floodlit football pitch at dusk with a match under way",
+    "focal": "50% 40%",
+    "credit": {
+      "author": "Randy Stern",
+      "title": "Thunder Pregame 1",
+      "url": "https://www.flickr.com/photos/resedabear/3888208323",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "cropped, resized, re-encoded"
+    }
+  },
+  {
+    "file": "facility-pool-864.webp",
+    "slot": "facility",
+    "sport": "pool",
+    "sizes": {
+      "640": "facility-pool-640.webp",
+      "864": "facility-pool-864.webp"
+    },
+    "width": 864,
+    "height": 576,
+    "alt": "Indoor 50-metre swimming pool with lane ropes under a glass roof",
+    "focal": "50% 40%",
+    "credit": {
+      "author": "jean-louis Zimmermann",
+      "title": "bassin olympique,stade nautique Nemausa  (Nîmes,FR30)",
+      "url": "https://www.flickr.com/photos/jeanlouis_zimmermann/4065454240",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "cropped, resized, re-encoded"
+    }
+  },
+  {
+    "file": "facility-court-1024.webp",
+    "slot": "facility",
+    "sport": "court",
+    "sizes": {
+      "640": "facility-court-640.webp",
+      "1024": "facility-court-1024.webp"
+    },
+    "width": 1024,
+    "height": 446,
+    "alt": "Indoor sports hall with several badminton courts in play",
+    "focal": "50% 60%",
+    "credit": {
+      "author": "Badmintonclub Uzwil",
+      "title": "Badmintonarena in Niederuzwil",
+      "url": "https://www.flickr.com/photos/bcuzwil/10802893386",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "cropped, resized, re-encoded"
+    }
+  },
+  {
+    "file": "facility-gym-1024.webp",
+    "slot": "facility",
+    "sport": "gym",
+    "sizes": {
+      "640": "facility-gym-640.webp",
+      "1024": "facility-gym-1024.webp"
+    },
+    "width": 1024,
+    "height": 683,
+    "alt": "Strength gym with rows of dumbbells, benches and racks",
+    "focal": "50% 40%",
+    "credit": {
+      "author": "Deane Rimerman",
+      "title": "FitnessMirrors4",
+      "url": "https://www.flickr.com/photos/deanetr/5311269889",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "cropped, resized, re-encoded"
+    }
+  },
+  {
+    "file": "facility-track-1024.webp",
+    "slot": "facility",
+    "sport": "track",
+    "sizes": {
+      "640": "facility-track-640.webp",
+      "1024": "facility-track-1024.webp"
+    },
+    "width": 1024,
+    "height": 683,
+    "alt": "Empty red running-track lanes with athletes' water bottles at the lane edge",
+    "focal": "50% 40%",
+    "credit": {
+      "author": "kimbatwl67",
+      "title": "Long Jump",
+      "url": "https://www.flickr.com/photos/51787720@N05/5501611473",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "cropped, resized, re-encoded"
+    }
+  },
+  {
+    "file": "gallery-01-876.webp",
+    "slot": "gallery",
+    "sport": "cricket",
+    "sizes": {
+      "640": "gallery-01-640.webp",
+      "876": "gallery-01-876.webp"
+    },
+    "width": 876,
+    "height": 768,
+    "alt": "Bowler throws both arms up in an appeal as the batter walks past the stumps",
+    "focal": "50% 40%",
+    "credit": {
+      "author": "Ally Middleton",
+      "title": "Howzzaat!",
+      "url": "https://www.flickr.com/photos/alza06/3691659485",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "resized, re-encoded"
+    },
+    "caption": "The big appeal"
+  },
+  {
+    "file": "gallery-02-724.webp",
+    "slot": "gallery",
+    "sport": "cricket",
+    "sizes": {
+      "724": "gallery-02-724.webp"
+    },
+    "width": 724,
+    "height": 1024,
+    "alt": "Fast bowler in full stride at the moment of delivery",
+    "focal": "50% 40%",
+    "credit": {
+      "author": "Alden Chadwick",
+      "title": "Leeds Caribbean Cricket Club 1",
+      "url": "https://www.flickr.com/photos/aldenchadwick/14804473363",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "resized, re-encoded"
+    },
+    "caption": "Running in to bowl"
+  },
+  {
+    "file": "gallery-03-1007.webp",
+    "slot": "gallery",
+    "sport": "football",
+    "sizes": {
+      "640": "gallery-03-640.webp",
+      "1007": "gallery-03-1007.webp"
+    },
+    "width": 1007,
+    "height": 1024,
+    "alt": "Two footballers battling shoulder to shoulder for the ball",
+    "focal": "50% 40%",
+    "credit": {
+      "author": "James Boyes",
+      "title": "Lewes v Met Police 25 Oct 2014 569",
+      "url": "https://www.flickr.com/photos/jamesboyes/15441352088",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "resized, re-encoded"
+    },
+    "caption": "Every ball contested"
+  },
+  {
+    "file": "gallery-04-1024.webp",
+    "slot": "gallery",
+    "sport": "football",
+    "sizes": {
+      "640": "gallery-04-640.webp",
+      "1024": "gallery-04-1024.webp"
+    },
+    "width": 1024,
+    "height": 978,
+    "alt": "Two women footballers racing for the ball, one striking it",
+    "focal": "50% 40%",
+    "credit": {
+      "author": "K.M. Klemencic",
+      "title": "DSC_0606",
+      "url": "https://www.flickr.com/photos/klemencic/7940987568",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "resized, re-encoded"
+    },
+    "caption": "Race to the ball"
+  },
+  {
+    "file": "gallery-05-1024.webp",
+    "slot": "gallery",
+    "sport": "badminton",
+    "sizes": {
+      "640": "gallery-05-640.webp",
+      "1024": "gallery-05-1024.webp"
+    },
+    "width": 1024,
+    "height": 682,
+    "alt": "Badminton player leaping for a jump smash in a blue-walled hall",
+    "focal": "50% 40%",
+    "credit": {
+      "author": "John Ragai",
+      "title": "The Jumping Smash",
+      "url": "https://www.flickr.com/photos/johnragai/8624155763",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "resized, re-encoded"
+    },
+    "caption": "The jump smash"
+  },
+  {
+    "file": "gallery-06-1024.webp",
+    "slot": "gallery",
+    "sport": "swimming",
+    "sizes": {
+      "640": "gallery-06-640.webp",
+      "1024": "gallery-06-1024.webp"
+    },
+    "width": 1024,
+    "height": 683,
+    "alt": "Two butterfly swimmers side by side between colourful lane ropes",
+    "focal": "50% 40%",
+    "credit": {
+      "author": "Svoem.dk",
+      "title": "IMG_5167",
+      "url": "https://www.flickr.com/photos/svoemdk/11342124156",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "resized, re-encoded"
+    },
+    "caption": "Neck and neck"
+  },
+  {
+    "file": "gallery-07-1024.webp",
+    "slot": "gallery",
+    "sport": "athletics",
+    "sizes": {
+      "640": "gallery-07-640.webp",
+      "1024": "gallery-07-1024.webp"
+    },
+    "width": 1024,
+    "height": 910,
+    "alt": "Long jumper flying through the air above the sand pit",
+    "focal": "50% 40%",
+    "credit": {
+      "author": "filip bossuyt",
+      "title": "102 michael vdp ver",
+      "url": "https://www.flickr.com/photos/filipbossuyt/14822638599",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "resized, re-encoded"
+    },
+    "caption": "Flight phase"
+  },
+  {
+    "file": "gallery-08-1024.webp",
+    "slot": "gallery",
+    "sport": "athletics",
+    "sizes": {
+      "640": "gallery-08-640.webp",
+      "1024": "gallery-08-1024.webp"
+    },
+    "width": 1024,
+    "height": 699,
+    "alt": "Pole vaulter arching over the bar against a dark crowd",
+    "focal": "50% 40%",
+    "credit": {
+      "author": "filip bossuyt",
+      "title": "9062 stefanidi",
+      "url": "https://www.flickr.com/photos/filipbossuyt/15008972342",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "resized, re-encoded"
+    },
+    "caption": "Clearing the bar"
+  },
+  {
+    "file": "gallery-09-721.webp",
+    "slot": "gallery",
+    "sport": "basketball",
+    "sizes": {
+      "721": "gallery-09-721.webp"
+    },
+    "width": 721,
+    "height": 1024,
+    "alt": "Basketball player driving to the basket past a defender",
+    "focal": "50% 40%",
+    "credit": {
+      "author": "K.M. Klemencic",
+      "title": "DSC_3993",
+      "url": "https://www.flickr.com/photos/klemencic/16128103087",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "resized, re-encoded"
+    },
+    "caption": "Driving to the hoop"
+  },
+  {
+    "file": "gallery-10-1024.webp",
+    "slot": "gallery",
+    "sport": "fitness",
+    "sizes": {
+      "640": "gallery-10-640.webp",
+      "1024": "gallery-10-1024.webp"
+    },
+    "width": 1024,
+    "height": 1024,
+    "alt": "Athlete rising out of a deep barbell back squat in a gym",
+    "focal": "50% 40%",
+    "credit": {
+      "author": "Travis Isaacs",
+      "title": "@dustinaskins on his way back up. #crossfit",
+      "url": "https://www.flickr.com/photos/tbisaacs/7454055608",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "resized, re-encoded"
+    },
+    "caption": "Strength session"
+  },
+  {
+    "file": "gallery-11-1024.webp",
+    "slot": "gallery",
+    "sport": "table tennis",
+    "sizes": {
+      "640": "gallery-11-640.webp",
+      "1024": "gallery-11-1024.webp"
+    },
+    "width": 1024,
+    "height": 683,
+    "alt": "Table tennis player in orange stretching low over the table for a forehand",
+    "focal": "50% 40%",
+    "credit": {
+      "author": "Gaël Marziou",
+      "title": "HERGELINK Bas (NED) IMG_2235_DxO",
+      "url": "https://www.flickr.com/photos/gmarziou/10122714874",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "resized, re-encoded"
+    },
+    "caption": "Low and fast"
+  },
+  {
+    "file": "gallery-12-1024.webp",
+    "slot": "gallery",
+    "sport": "athletics",
+    "sizes": {
+      "640": "gallery-12-640.webp",
+      "1024": "gallery-12-1024.webp"
+    },
+    "width": 1024,
+    "height": 694,
+    "alt": "Hurdler fully extended over a hurdle, photographed from above",
+    "focal": "50% 40%",
+    "credit": {
+      "author": "Philo Nordlund",
+      "title": "Lockstep",
+      "url": "https://www.flickr.com/photos/philon/2421405858",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "resized, re-encoded"
+    },
+    "caption": "Over the hurdle"
+  },
+  {
+    "file": "about-coach-906.webp",
+    "slot": "about",
+    "sport": "athletics",
+    "sizes": {
+      "640": "about-coach-640.webp",
+      "906": "about-coach-906.webp"
+    },
+    "width": 906,
+    "height": 1024,
+    "alt": "Coach with a stopwatch guiding an athlete in a crouched start on the track",
+    "focal": "50% 40%",
+    "credit": {
+      "author": "Fort Carson",
+      "title": "runner",
+      "url": "https://www.flickr.com/photos/fortcarson/8580557060",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "resized, re-encoded"
+    },
+    "caption": "Coaching the start"
+  },
+  {
+    "file": "about-huddle-683.webp",
+    "slot": "about",
+    "sport": "basketball",
+    "sizes": {
+      "683": "about-huddle-683.webp"
+    },
+    "width": 683,
+    "height": 1024,
+    "alt": "Basketball team in red gathered in a tight huddle on court",
+    "focal": "50% 40%",
+    "credit": {
+      "author": "Jeff Kramer",
+      "title": "Team Huddle",
+      "url": "https://www.flickr.com/photos/jeffk/92047417",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "resized, re-encoded"
+    },
+    "caption": "Team huddle"
+  },
+  {
+    "file": "about-trophies-573.webp",
+    "slot": "about",
+    "sport": null,
+    "sizes": {
+      "573": "about-trophies-573.webp"
+    },
+    "width": 573,
+    "height": 722,
+    "alt": "Row of gold trophy cups on a table against a dark background",
+    "focal": "50% 40%",
+    "credit": {
+      "author": "CedarBendDrive",
+      "title": "2008 Michigan Wine & Spirits Competition",
+      "url": "https://www.flickr.com/photos/cedarbend/2745065846",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "cropped, resized, re-encoded"
+    },
+    "caption": "Silverware"
+  },
+  {
+    "file": "wide-stadium-1024.webp",
+    "slot": "wide",
+    "sport": "football",
+    "sizes": {
+      "640": "wide-stadium-640.webp",
+      "1024": "wide-stadium-1024.webp"
+    },
+    "width": 1024,
+    "height": 576,
+    "alt": "Football stadium at dusk with floodlights on, a corner flag and players warming up",
+    "focal": "50% 40%",
+    "credit": {
+      "author": "Piotr Drabik",
+      "title": "Stadion Cracovii",
+      "url": "https://www.flickr.com/photos/drabikpany/8145576268/",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modified": "cropped, resized, re-encoded"
+    },
+    "caption": "Under the lights"
+  }
+]

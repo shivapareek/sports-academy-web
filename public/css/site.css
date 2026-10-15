@@ -605,7 +605,7 @@ ol {
 }
 .menu__label {
   display: inline-block;
-  font: 800 clamp(2.4rem, 7.2vh, 5.2rem) / 0.98 var(--f-display);
+  font: 800 clamp(2rem, 6.2vh, 4.6rem) / 0.98 var(--f-display);
   font-stretch: 62%;
   text-transform: uppercase;
   transform: translateY(105%);

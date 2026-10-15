@@ -12,12 +12,19 @@ const schema = require('./schema');
 const texts = require('./texts');
 const content = require('./content');
 const views = require('./views');
+const opsViews = require('./views/ops');
+const notify = require('./notify');
+const academy = require('./academy');
+const billing = require('./billing');
+const publicApi = require('./routes/public');
+const portal = require('./routes/portal');
+const mountOps = require('./routes/admin-ops');
 
 const ROOT = path.join(__dirname, '..');
 const UPLOAD_DIR = path.resolve(process.env.UPLOAD_DIR || path.join(ROOT, 'uploads'));
 const PORT = Number(process.env.PORT) || 3000;
 
-store.load(seed);
+store.load(seed, require('./seed-ops').migrate);
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
 const app = express();
@@ -45,7 +52,8 @@ app.use('/admin', (req, res, next) => {
 }, express.static(path.join(ROOT, 'admin'), { index: 'index.html' }));
 app.get('/favicon.ico', (req, res) => res.redirect(301, '/img/favicon.svg'));
 
-app.use(express.json({ limit: '1mb' }));
+// Keep the raw body: Razorpay webhooks are signed over the exact bytes.
+app.use(express.json({ limit: '1mb', verify: (req, res, buf) => { if (req.originalUrl.startsWith('/api/pay/webhook')) req.rawBody = buf.toString('utf8'); } }));
 
 function log(user, action, detail = '') {
   const db = store.get();
@@ -53,70 +61,14 @@ function log(user, action, detail = '') {
   db.activity.length = Math.min(db.activity.length, 500);
 }
 
-// ---------------------------------------------------------------- forms ---
+// ---------------------------------------------------------- public API ---
 
-const FORM_LIMITS = { name: 80, student: 80, guardian: 80, phone: 20, email: 120, age: 10, program: 80, batch: 120, plan: 60, date: 10, dob: 10, gender: 20, topic: 60, experience: 400, medical: 600, message: 2000 };
-const formLimiter = auth.rateLimit('form', 12, 15 * 60e3);
-
-function readForm(type, body) {
-  const out = {};
-  for (const key of schema.submissions[type].fields) {
-    out[key] = String(body[key] == null ? '' : body[key]).replace(/\s+/g, key === 'message' || key === 'medical' ? ' ' : ' ').trim().slice(0, FORM_LIMITS[key] || 200);
-  }
-  return out;
-}
-
-function validPhone(p) {
-  return /^[+\d][\d\s-]{7,18}$/.test(p);
-}
-function validEmail(e) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
-}
-
-app.post('/api/forms/:type', formLimiter, (req, res) => {
-  const type = req.params.type;
-  if (!schema.submissions[type]) return res.status(404).json({ error: 'Unknown form.' });
-  const body = req.body || {};
-  // Honeypot: real people never fill the hidden "website" field.
-  if (body.website) return res.json({ ok: true });
-  const db = store.get();
-  const s = db.settings;
-  if (type === 'admissions' && !s.admissionsOpen) return res.status(400).json({ error: 'Admissions are closed right now.' });
-  if (type === 'trials' && !s.trialsOpen) return res.status(400).json({ error: 'Trial booking is paused right now.' });
-  const data = readForm(type, body);
-  const errors = {};
-  if (type === 'subscribers') {
-    if (!validEmail(data.email)) errors.email = 'Enter a valid email address.';
-    if (db.subscribers.some((x) => x.email.toLowerCase() === data.email.toLowerCase())) return res.json({ ok: true, message: 'You are already subscribed. Thank you!' });
-  } else {
-    const nameKey = type === 'admissions' ? 'student' : 'name';
-    if (data[nameKey].length < 2) errors[nameKey] = 'Please enter a name.';
-    if (!validPhone(data.phone)) errors.phone = 'Enter a valid phone number.';
-    if (data.email && !validEmail(data.email)) errors.email = 'Enter a valid email address.';
-    if (type === 'admissions') {
-      if (data.guardian.length < 2 && !isAdult(data.dob)) errors.guardian = 'A parent or guardian name is needed for athletes under 18.';
-      if (!data.program) errors.program = 'Choose a program.';
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(data.dob)) errors.dob = 'Enter the date of birth.';
-      if (body.consent !== true && body.consent !== 'on') errors.consent = 'Please accept the terms to continue.';
-    }
-    if (type === 'trials' && !data.program) errors.program = 'Choose a sport.';
-    if (type === 'enquiries' && data.message.length < 5) errors.message = 'Please write a short message.';
-  }
-  if (Object.keys(errors).length) return res.status(400).json({ error: 'Please check the highlighted fields.', fields: errors });
-  const record = { id: store.id(type[0] + '_'), ...data, status: 'new', notes: '', createdAt: new Date().toISOString() };
-  db[type].unshift(record);
-  log(null, `New ${schema.submissions[type].label.toLowerCase()} submission`, data.name || data.student || data.email);
-  store.save();
-  res.json({ ok: true, message: content.text('form.success'), ref: record.id.slice(-6).toUpperCase() });
+app.use(portal.attach);
+app.use((req, res, next) => {
+  notify.remember(req);
+  next();
 });
-
-function isAdult(dob) {
-  const d = new Date(dob);
-  if (isNaN(d)) return false;
-  const eighteen = new Date(d);
-  eighteen.setFullYear(d.getFullYear() + 18);
-  return eighteen <= new Date();
-}
+app.use('/api', publicApi);
 
 // ---------------------------------------------------------------- admin ---
 
@@ -441,12 +393,12 @@ admin.delete('/media/:id', auth.requirePerm('content'), (req, res) => {
 admin.get('/users', auth.requirePerm('users'), (req, res) => res.json(store.get().users.map(auth.publicUser)));
 admin.post('/users', auth.requirePerm('users'), (req, res) => {
   const db = store.get();
-  const { name, email, role, password } = req.body || {};
+  const { name, email, role, password, coachId } = req.body || {};
   if (!name || !/^[^\s@]+@[^\s@]+$/.test(email || '')) return res.status(400).json({ error: 'Name and a valid email are required.' });
   if (!auth.ROLES[role]) return res.status(400).json({ error: 'Pick a role.' });
   if (db.users.some((u) => u.email.toLowerCase() === email.toLowerCase())) return res.status(400).json({ error: 'A user with this email exists.' });
   if (!strongEnough(password)) return res.status(400).json({ error: 'Temporary password: at least 10 characters with a letter and a number.' });
-  const u = { id: store.id('u_'), name: String(name).slice(0, 80), email: email.trim(), role, passwordHash: auth.hashPassword(password), mustChange: true, createdAt: new Date().toISOString() };
+  const u = { id: store.id('u_'), name: String(name).slice(0, 80), email: email.trim(), role, passwordHash: auth.hashPassword(password), mustChange: true, coachId: store.get().coaches.some((c) => c.id === coachId) ? coachId : '', createdAt: new Date().toISOString() };
   db.users.push(u);
   log(req.user, 'Added user', u.email);
   store.save();
@@ -456,7 +408,8 @@ admin.put('/users/:id', auth.requirePerm('users'), (req, res) => {
   const db = store.get();
   const u = db.users.find((x) => x.id === req.params.id);
   if (!u) return res.status(404).json({ error: 'Not found.' });
-  const { name, role, disabled, password } = req.body || {};
+  const { name, role, disabled, password, coachId } = req.body || {};
+  if (coachId !== undefined) u.coachId = store.get().coaches.some((c) => c.id === coachId) ? coachId : '';
   const admins = db.users.filter((x) => x.role === 'admin' && !x.disabled);
   if (u.role === 'admin' && admins.length === 1 && ((role && role !== 'admin') || disabled)) return res.status(400).json({ error: 'Keep at least one active admin.' });
   if (name) u.name = String(name).slice(0, 80);
@@ -487,6 +440,8 @@ admin.delete('/users/:id', auth.requirePerm('users'), (req, res) => {
 
 admin.get('/activity', auth.requirePerm('users'), (req, res) => res.json(store.get().activity));
 
+mountOps(admin);
+
 app.use('/api/admin', admin);
 app.use('/api', (req, res) => res.status(404).json({ error: 'Not found.' }));
 
@@ -506,7 +461,7 @@ function origin(req) {
 }
 
 app.use((req, res, next) => {
-  res.setHeader('Content-Security-Policy', "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self'; frame-src https://www.google.com https://maps.google.com; connect-src 'self'; base-uri 'self'; form-action 'self'");
+  res.setHeader('Content-Security-Policy', "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' https://checkout.razorpay.com; frame-src https://www.google.com https://maps.google.com https://api.razorpay.com https://checkout.razorpay.com; connect-src 'self' https://api.razorpay.com https://lumberjack.razorpay.com; base-uri 'self'; form-action 'self'");
   next();
 });
 
@@ -532,6 +487,20 @@ app.get('/news/:slug', page((req) => views.post(req, req.params.slug)));
 app.get('/admissions', page((req) => views.admissions(req)));
 app.get('/contact', page((req) => views.contact(req)));
 app.get('/credits', page((req) => views.credits(req)));
+app.get('/book', page((req) => opsViews.book(req)));
+app.get('/data-request', page((req) => opsViews.dataRequest(req)));
+app.use('/portal', portal.router);
+
+// Invoice / receipt: by its secret link, by the family's portal session, or for staff.
+app.get('/invoice/:id', page((req, res) => {
+  const inv = (store.get().invoices || []).find((i) => i.id === req.params.id);
+  if (!inv) return null;
+  const staff = auth.currentSession(req);
+  const ok = req.query.t === inv.token || (req.parent && req.parent.id === inv.familyId) || (staff && auth.can(staff.user, 'billing'));
+  if (!ok) return null;
+  res.setHeader('Cache-Control', 'private, no-store');
+  return opsViews.invoice(req, inv);
+}));
 app.get('/:slug', page((req) => views.customPage(req, req.params.slug)));
 
 app.use((req, res) => res.status(404).type('html').send(String(views.notFound(req))));
@@ -541,7 +510,10 @@ app.use((err, req, res, next) => {
   res.status(500).type('html').send('<h1>Something went wrong</h1><p>Please try again in a minute.</p>');
 });
 
+academy.syncSeats();
+
 if (require.main === module) {
+  billing.startScheduler();
   app.listen(PORT, () => console.log(`Vega Sports Academy on http://localhost:${PORT}  ·  admin: http://localhost:${PORT}/admin/`));
 }
 

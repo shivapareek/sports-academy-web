@@ -21,7 +21,9 @@ const MENU = [
   ['/gallery', 'Gallery'],
   ['/news', 'Stories'],
   ['/admissions', 'Admissions'],
+  ['/book', 'Book a court'],
   ['/contact', 'Contact'],
+  ['/portal', 'Parent login'],
 ];
 
 function logo(s) {
@@ -36,7 +38,7 @@ function social(s) {
   return html`<div class="social">${items.map(([k, u]) => html`<a href="${u}" target="_blank" rel="noopener" aria-label="${k}">${icon(k)}</a>`)}</div>`;
 }
 
-function layout(req, { title: pageTitle, description, body, name = 'page', image }) {
+function layout(req, { title: pageTitle, description, body, name = 'page', image, head, noindex }) {
   const db = store.get();
   const s = db.settings;
   const full = pageTitle ? `${pageTitle} · ${s.name}` : s.seoTitle || s.name;
@@ -68,12 +70,15 @@ function layout(req, { title: pageTitle, description, body, name = 'page', image
 <meta property="og:type" content="website">
 ${og ? html`<meta property="og:image" content="${og}">` : ''}
 <meta name="theme-color" content="#0E0E0D">
+${noindex ? raw('<meta name="robots" content="noindex, nofollow">') : ''}
+${head || ''}
 <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
 <script src="/js/boot.js?v=${VERSION}"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&family=Instrument+Sans:wght@400..600&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="/css/site.css?v=${VERSION}">
+<link rel="stylesheet" href="/css/ops.css?v=${VERSION}">
 <style>:root{--track:${raw(safeColor(s.accent, '#E0482B'))};--volt:${raw(safeColor(s.volt, '#D4F53C'))}}</style>
 <script type="application/ld+json">${raw(JSON.stringify(ld).replace(/</g, '\\u003c'))}</script>
 </head>
@@ -130,7 +135,7 @@ ${body}
     <div class="footer__cols">
       <div>
         <h3 class="footer__label">Academy</h3>
-        <ul>${MENU.slice(1, 7).map(([h, l]) => html`<li><a href="${h}">${l}</a></li>`)}</ul>
+        <ul>${MENU.slice(1, 8).filter(([h]) => h !== '/admissions').map(([h, l]) => html`<li><a href="${h}">${l}</a></li>`)}</ul>
       </div>
       <div>
         <h3 class="footer__label">Join</h3>
@@ -138,6 +143,8 @@ ${body}
           <li><a href="/admissions">Admissions</a></li>
           <li><a href="/admissions#trial">Free trial</a></li>
           <li><a href="/admissions#fees">Fees</a></li>
+          <li><a href="/book">Book a facility</a></li>
+          <li><a href="/portal">Parent portal</a></li>
           <li><a href="/contact">Contact</a></li>
           ${footerPages.map((p) => html`<li><a href="/${p.slug}">${p.title}</a></li>`)}
         </ul>
@@ -164,6 +171,8 @@ ${wa ? html`<a class="wa-float" href="${wa}" target="_blank" rel="noopener" aria
 <script src="/vendor/ScrollTrigger.min.js" defer></script>
 <script src="/vendor/SplitText.min.js" defer></script>
 <script src="/vendor/lenis.min.js" defer></script>
+<script src="/js/pay.js?v=${VERSION}" defer></script>
+<script src="/js/ops.js?v=${VERSION}" defer></script>
 <script src="/js/site.js?v=${VERSION}" defer></script>
 </body>
 </html>`;

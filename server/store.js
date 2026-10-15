@@ -16,14 +16,14 @@ function id(prefix = '') {
   return prefix + crypto.randomBytes(6).toString('hex');
 }
 
-function load(seedFn) {
+// migrateFn(db, { fresh }) runs after loading, with the store already pointing
+// at db, so it can use modules that read through store.get().
+function load(seedFn, migrateFn) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
-  if (fs.existsSync(FILE)) {
-    db = JSON.parse(fs.readFileSync(FILE, 'utf8'));
-  } else {
-    db = seedFn();
-    writeNow();
-  }
+  const fresh = !fs.existsSync(FILE);
+  db = fresh ? seedFn() : JSON.parse(fs.readFileSync(FILE, 'utf8'));
+  if (migrateFn) migrateFn(db, { fresh });
+  writeNow();
   return db;
 }
 

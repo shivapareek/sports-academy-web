@@ -5,9 +5,10 @@ const store = require('./store');
 const COOKIE = 'vega_admin';
 const SESSION_DAYS = 7;
 const ROLES = {
-  admin: { label: 'Admin', can: ['content', 'submissions', 'settings', 'users'] },
-  editor: { label: 'Editor', can: ['content', 'submissions'] },
-  staff: { label: 'Front desk', can: ['submissions'] },
+  admin: { label: 'Admin', can: ['content', 'submissions', 'settings', 'users', 'students', 'attendance', 'billing', 'privacy'] },
+  editor: { label: 'Editor', can: ['content', 'submissions', 'students', 'attendance'] },
+  staff: { label: 'Front desk', can: ['submissions', 'students', 'attendance', 'billing'] },
+  coach: { label: 'Coach', can: ['attendance'] },
 };
 
 function hashPassword(password) {
@@ -96,7 +97,7 @@ function requirePerm(perm) {
 }
 
 function publicUser(u) {
-  return { id: u.id, name: u.name, email: u.email, role: u.role, mustChange: !!u.mustChange, disabled: !!u.disabled, perms: (ROLES[u.role] || { can: [] }).can };
+  return { id: u.id, name: u.name, email: u.email, role: u.role, coachId: u.coachId || '', mustChange: !!u.mustChange, disabled: !!u.disabled, perms: (ROLES[u.role] || { can: [] }).can };
 }
 
 // Tiny in-memory rate limiter keyed by IP + bucket.

@@ -274,7 +274,7 @@
     Object.keys(fields || {}).forEach(function (k) {
       var err = $('[data-err="' + k + '"]', form);
       if (err) err.textContent = fields[k];
-      var input = form.elements[k];
+      var input = form.elements[k === 'otp' ? 'otpToken' : k];
       if (input && input.closest) {
         var f = input.closest('.field');
         if (f) f.classList.add('has-err');
@@ -313,6 +313,11 @@
       $$('[required]', steps[step]).forEach(function (el) {
         if (!String(el.value).trim()) errs[el.name] = 'This field is required.';
       });
+      // Parent's phone must be verified for athletes under 18 (DPDP consent).
+      var otpBox = steps[step].querySelector('[data-otp]');
+      if (otpBox && form.getAttribute('data-adult') !== '1' && !otpBox.querySelector('input[name="otpToken"]').value && !errs.phone) {
+        errs.otp = 'Please verify the parent’s mobile number with the code we send.';
+      }
       if (Object.keys(errs).length) { showErrors(form, errs); return false; }
       return true;
     }

@@ -5,6 +5,8 @@ const content = require('../content');
 const { DAYS } = require('../schema');
 const { html, raw, title, inline, paras, pairs, img, money, date, time12, pad, initials, icon, btn } = require('./html');
 const { layout, pageHead } = require('./layout');
+const ops = require('./ops');
+const academy = require('../academy');
 
 const t = content.text;
 const list = content.list;
@@ -42,7 +44,7 @@ function formField({ name, label, type = 'text', required, options, placeholder,
   const id = 'f-' + name + '-' + Math.random().toString(36).slice(2, 6);
   const control =
     type === 'select'
-      ? html`<select id="${id}" name="${name}"${required ? raw(' required') : ''}><option value="">Select…</option>${options.map((o) => html`<option${o === value ? raw(' selected') : ''}>${o}</option>`)}</select>`
+      ? html`<select id="${id}" name="${name}"${required ? raw(' required') : ''}><option value="">Select…</option>${options.map((o) => (Array.isArray(o) ? html`<option value="${o[0]}"${o[0] === value ? raw(' selected') : ''}>${o[1]}</option>` : html`<option${o === value ? raw(' selected') : ''}>${o}</option>`))}</select>`
       : type === 'textarea'
         ? html`<textarea id="${id}" name="${name}" rows="4" placeholder="${placeholder || ''}"${required ? raw(' required') : ''}></textarea>`
         : html`<input id="${id}" name="${name}" type="${type}" placeholder="${placeholder || ''}"${autocomplete ? raw(` autocomplete="${autocomplete}"`) : ''}${required ? raw(' required') : ''}${value ? raw(` value="${require('./html').esc(value)}"`) : ''}${min ? raw(` min="${min}"`) : ''}${max ? raw(` max="${max}"`) : ''}>`;
@@ -61,7 +63,12 @@ function trialForm({ program } = {}) {
         ${formField({ name: 'phone', label: 'Phone / WhatsApp', type: 'tel', required: true, autocomplete: 'tel' })}
         ${formField({ name: 'email', label: 'Email', type: 'email', autocomplete: 'email' })}
         ${formField({ name: 'program', label: 'Sport', type: 'select', required: true, options: programs.map((p) => p.name), value: program })}
-        ${formField({ name: 'date', label: 'Preferred day', type: 'date', min: today })}
+        <div class="field field--full slotpick" data-trial-slots>
+          <span class="slotpick__label">Pick a session <small>(we hold a spot for you)</small></span>
+          <div class="slotpick__list" role="radiogroup" aria-label="Trial session"><p class="muted">Choose a sport to see open sessions.</p></div>
+          <input type="hidden" name="batch"><input type="hidden" name="date">
+          <span class="field__err" data-err="date"></span>
+        </div>
       </div>
       <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
       <div class="form-foot">
@@ -128,6 +135,8 @@ ${on('manifesto')
   </div>
 </section>`
   : ''}
+
+${on('trust') ? ops.trustStrip() : ''}
 
 ${on('stats') && stats.length
   ? html`<section class="stats" aria-label="${t('home.stats.eyebrow')}">
@@ -242,6 +251,9 @@ ${on('testimonials') && testimonials.length
 </section>`
   : ''}
 
+${on('alumni') ? ops.alumniSection() : ''}
+${on('reviews') ? ops.reviewsSection() : ''}
+
 ${on('trial')
   ? html`<section class="trial section" id="trial">
   <div class="wrap trial__in">
@@ -268,6 +280,8 @@ ${on('news') && posts.length
   </div>
 </section>`
   : ''}
+
+${on('press') ? ops.pressSection() : ''}
 
 ${on('cta')
   ? html`<section class="cta section--dark">
@@ -352,6 +366,9 @@ ${milestones.length
     )}</div>
   </div>
 </section>
+${ops.trustStrip()}
+${ops.alumniSection()}
+${ops.pressSection()}
 ${ctaBand()}`;
   return layout(req, { name: 'about', title: 'About', description: t('about.intro'), body });
 }
@@ -487,7 +504,7 @@ ${next && next !== p
 
 function seatsInfo(b) {
   const seats = Number(b.seats) || 0;
-  const left = Math.max(0, Number(b.seatsLeft) || 0);
+  const left = academy.seatsLeft(b);
   const pct = seats ? Math.round(((seats - left) / seats) * 100) : 0;
   const label = left === 0 ? 'Full' : left <= 3 ? `${left} left` : `${left} open`;
   return { seats, left, pct, label, hot: left <= 3 };
@@ -772,7 +789,8 @@ ${plans.length
           <legend class="mono">Step 2 of 3 · Contact</legend>
           <div class="form-grid">
             ${formField({ name: 'guardian', label: 'Parent / guardian name', autocomplete: 'name', full: true })}
-            ${formField({ name: 'phone', label: 'Phone / WhatsApp', type: 'tel', required: true, autocomplete: 'tel' })}
+            ${s.verifyParentConsent ? ops.otpBlock('consent', '', 'Parent’s mobile (WhatsApp)') : formField({ name: 'phone', label: 'Phone / WhatsApp', type: 'tel', required: true, autocomplete: 'tel' })}
+            ${s.verifyParentConsent ? html`<p class="fineprint field--full">Required for athletes under 18: we verify the parent’s number with a one-time code to record verifiable consent, as the DPDP Act 2023 requires.</p>` : ''}
             ${formField({ name: 'email', label: 'Email', type: 'email', autocomplete: 'email' })}
             ${formField({ name: 'medical', label: 'Medical conditions or allergies', type: 'textarea', full: true })}
           </div>
@@ -781,9 +799,10 @@ ${plans.length
           <legend class="mono">Step 3 of 3 · Program</legend>
           <div class="form-grid">
             ${formField({ name: 'program', label: 'Program', type: 'select', required: true, options: programs.map((p) => p.name) })}
-            ${formField({ name: 'batch', label: 'Preferred batch', type: 'select', options: batches.map((b) => `${(programById(b.program) || {}).name} · ${b.name} (${time12(b.start)})`) })}
+            ${formField({ name: 'batch', label: 'Preferred batch', type: 'select', options: batches.map((b) => { const left = academy.seatsLeft(b); return [b.id, `${(programById(b.program) || {}).name} · ${b.name} (${time12(b.start)}) · ${left ? left + ' seats left' : 'full: join waiting list'}`]; }) })}
             ${formField({ name: 'plan', label: 'Fee plan', type: 'select', options: plans.map((p) => p.name) })}
             ${formField({ name: 'message', label: 'Anything else?', type: 'textarea', full: true })}
+            <label class="check field--full"><input type="checkbox" name="photoConsent"> <span>Optional: I allow photos/videos of the athlete on the academy’s website and social media (<a href="/photo-consent" target="_blank">details</a>). You can change this any time in the parent portal.</span></label>
             <label class="check field--full"><input type="checkbox" name="consent"> <span>I agree to the <a href="/privacy-policy" target="_blank">privacy policy</a> and confirm the details are correct.</span></label>
             <span class="field__err" data-err="consent"></span>
           </div>

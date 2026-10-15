@@ -72,6 +72,15 @@
   function fail(e) { toast(e.message || 'Something went wrong.', 'err'); }
   function can(p) { return S.user && S.user.perms.indexOf(p) >= 0; }
 
+  // Extra screens register themselves here (see ops.js).
+  var EXTRA = {};
+  window.VegaAdmin = {
+    S: S, api: api, toast: toast, fail: fail, can: can, esc: esc, icon: icon, top: top, drawer: drawer, modal: modal, confirmBox: confirmBox, closeLayer: closeLayer,
+    fmtDate: fmtDate, ago: ago, fieldHtml: function (f, v, p) { return fieldHtml(f, v, p); }, readFields: function (f, x) { return readFields(f, x); },
+    register: function (name, fn) { EXTRA[name] = fn; },
+    hooks: {},
+  };
+
   /* -------------------------------------------------------------- boot */
   api('GET', '/me')
     .then(function (r) { S.user = r.user; S.csrf = r.csrf; return loadSchema(); })
@@ -140,6 +149,11 @@
     nav += '<div class="side__group"><a href="#/" data-r="dash">' + icon('dash') + 'Dashboard</a>';
     if (can('submissions')) nav += '<a href="#/s/trials" data-r="s">' + icon('inbox') + 'Leads & forms<span class="count" id="newcount" hidden></span></a>';
     nav += '</div>';
+    var opsNav = '';
+    if (can('students')) opsNav += '<a href="#/students" data-r="students">' + icon('users') + 'Students & families</a>';
+    if (can('attendance')) opsNav += '<a href="#/attendance" data-r="attendance">' + icon('list') + 'Attendance & QR</a>';
+    if (can('billing')) opsNav += '<a href="#/billing" data-r="billing">' + icon('grid') + 'Fees & invoices</a><a href="#/bookings" data-r="bookings">' + icon('grid') + 'Facility bookings</a>';
+    if (opsNav) nav += '<div class="side__group"><span class="side__label mono">Operations</span>' + opsNav + '</div>';
     if (can('content')) {
       Object.keys(groups).forEach(function (g) {
         nav += '<div class="side__group"><span class="side__label mono">' + esc(g) + '</span>';
@@ -150,9 +164,9 @@
         '<a href="#/texts" data-r="texts">' + icon('text') + 'Page text</a>' +
         '<a href="#/sections" data-r="sections">' + icon('toggle') + 'Home sections</a>' +
         '<a href="#/media" data-r="media">' + icon('image') + 'Media library</a>' +
-        (can('settings') ? '<a href="#/settings" data-r="settings">' + icon('cog') + 'Settings</a>' : '') + '</div>';
+        (can('settings') ? '<a href="#/messages" data-r="messages">' + icon('inbox') + 'Messages & integrations</a><a href="#/settings" data-r="settings">' + icon('cog') + 'Settings</a>' : '') + '</div>';
     }
-    if (can('users')) nav += '<div class="side__group"><span class="side__label mono">Team</span><a href="#/users" data-r="users">' + icon('users') + 'Users</a><a href="#/activity" data-r="activity">' + icon('list') + 'Activity log</a></div>';
+    if (can('users')) nav += '<div class="side__group"><span class="side__label mono">Team</span><a href="#/users" data-r="users">' + icon('users') + 'Users</a><a href="#/privacy" data-r="privacy">' + icon('eye') + 'Privacy requests</a><a href="#/activity" data-r="activity">' + icon('list') + 'Activity log</a></div>';
     nav += '<div class="side__foot"><span>' + esc(S.user.name) + '<br><small>' + esc(S.user.email) + ' · ' + esc(S.schema.roles[S.user.role]) + '</small></span>' +
       '<a href="/" target="_blank" rel="noopener">' + icon('ext') + 'View website</a>' +
       '<a href="#/account">' + icon('cog') + 'My password</a>' +
@@ -191,7 +205,8 @@
     main.innerHTML = '<p class="muted">Loading…</p>';
     window.scrollTo(0, 0);
     var view;
-    if (h === '') view = viewDashboard;
+    if (h === '') view = can('content') || can('submissions') ? viewDashboard : can('attendance') ? EXTRA.attendance : viewAccount;
+    else if (EXTRA[parts[0]]) view = function (m) { EXTRA[parts[0]](m, parts.slice(1)); };
     else if (parts[0] === 's') view = function (m) { viewSubmissions(m, parts[1] || 'trials'); };
     else if (parts[0] === 'c' && parts[2]) view = function (m) { viewEdit(m, parts[1], parts[2]); };
     else if (parts[0] === 'c') view = function (m) { viewCollection(m, parts[1]); };
@@ -219,6 +234,7 @@
         kpi('Subscribers', d.subscribers, 'Newsletter list', '#/s/subscribers') +
         kpi('Seats left', d.seatsLeft, 'Across all batches', '#/c/batches') +
         '</div>' +
+        '<div id="opsum"></div>' +
         '<div class="dash"><div class="grid">' +
         '<div class="card card__pad"><h2>Form submissions · 14 days</h2><div class="chart">' + d.days.map(function (x) {
           return '<div title="' + x.day + ': ' + x.count + '"><i style="height:' + Math.round((x.count / max) * 130) + 'px"></i><span>' + x.day.slice(8) + '</span></div>';
@@ -234,6 +250,7 @@
           return '<div><span>' + esc(a.action) + (a.detail ? ' <span class="muted">· ' + esc(a.detail) + '</span>' : '') + '</span><span class="muted" style="font-size:12px;white-space:nowrap">' + ago(a.at) + '</span></div>';
         }).join('') + '</div></div>' +
         '</div></div>';
+      if (window.VegaAdmin.hooks.dashboard) window.VegaAdmin.hooks.dashboard($('#opsum'));
     }).catch(fail);
   }
 
@@ -304,8 +321,21 @@
         '<div class="f"><label for="snotes">Internal notes</label><textarea id="snotes" placeholder="Called on Monday, coming for trial Saturday 7 AM…">' + esc(r.notes || '') + '</textarea></div>';
     }
     var actions = (phone ? '<a class="btn btn--ghost btn--sm" href="tel:' + esc(phone) + '">Call</a> <a class="btn btn--ghost btn--sm" target="_blank" rel="noopener" href="' + esc(wa) + '">WhatsApp</a> ' : '') + (r.email ? '<a class="btn btn--ghost btn--sm" href="mailto:' + esc(r.email) + '">Email</a>' : '');
+    if (type === 'admissions' && can('students')) {
+      actions += r.studentId ? ' <a class="btn btn--ghost btn--sm" href="#/students/' + esc(r.studentId) + '">Open student</a>' : ' <button class="btn btn--volt btn--sm" type="button" data-enroll>Enrol & invite to portal</button>';
+    }
+    if (r.consent) body += '<p class="muted" style="font-size:13px">Consent: ' + esc(r.consent.method === 'otp' ? 'parent verified by one-time code' : 'checkbox') + ' · version ' + esc(r.consent.version) + ' · ' + fmtDate(r.consent.at) + '</p>';
     var d = drawer(r.name || r.student || r.email, '<div style="display:flex;gap:6px;flex-wrap:wrap">' + actions + '</div>' + body,
       '<button class="btn btn--danger btn--sm" data-del>' + icon('trash') + 'Delete</button>' + (type !== 'subscribers' ? '<button class="btn" data-save>Save</button>' : ''));
+    var enroll = $('[data-enroll]', d);
+    if (enroll) enroll.addEventListener('click', function () {
+      enroll.disabled = true;
+      api('POST', '/ops/admissions/' + r.id + '/enroll').then(function (x) {
+        toast(x.waitlisted ? 'Student created and kept on the waiting list (batch full).' : x.joinedBatch ? 'Enrolled. Portal invite sent.' : 'Enrolled without a batch: pick one in Students. Portal invite sent.');
+        onChange({ status: x.status, studentId: x.studentId });
+        closeLayer();
+      }).catch(function (e) { enroll.disabled = false; fail(e); });
+    });
     var save = $('[data-save]', d);
     if (save) save.addEventListener('click', function () {
       api('PATCH', '/s/' + type + '/' + r.id, { status: $('#sst').value, notes: $('#snotes').value })
@@ -546,6 +576,16 @@
           else { $('#dirty').textContent = 'All changes saved'; }
         }).catch(function (err) { $('#eerr').textContent = err.message; window.scrollTo({ top: 0, behavior: 'smooth' }); });
       });
+      if (name === 'notices' && !isNew && can('content')) {
+        var bc = document.createElement('button');
+        bc.type = 'button'; bc.className = 'btn btn--ghost btn--sm'; bc.textContent = it.broadcastAt ? 'Send again on WhatsApp/email' : 'Send to parents on WhatsApp/email';
+        $('.sticky-save span:last-child').prepend(bc);
+        bc.addEventListener('click', function () {
+          confirmBox('Send this notice to parents?', it.program ? 'Families with an athlete in this program get it.' : 'Every family with an active athlete gets it.', 'Send').then(function (ok) {
+            if (ok) api('POST', '/ops/notices/' + id + '/broadcast').then(function (x) { toast('Sent to ' + x.count + ' families'); }).catch(fail);
+          });
+        });
+      }
       var del = $('#edel');
       if (del) del.addEventListener('click', function () {
         confirmBox('Delete "' + (it[def.titleField] || def.singular) + '"?', 'It disappears from the website straight away. This cannot be undone.', 'Delete').then(function (ok) {
@@ -696,7 +736,7 @@
         '<div class="card card__pad"><div class="grid">' + S.schema.sections.map(function (x, i) {
           return '<label class="switch" style="justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line)"><span><span class="mono muted">' + String(i + 1).padStart(2, '0') + '</span> &nbsp;' + esc(x[1]) + '</span><input type="checkbox" data-k="' + x[0] + '"' + (s[x[0]] !== false ? ' checked' : '') + '></label>';
         }).join('') + '</div></div>';
-      main.addEventListener('change', function (e) {
+      $('.card', main).addEventListener('change', function (e) {
         var k = e.target.getAttribute('data-k'); if (!k) return;
         var body = {}; body[k] = e.target.checked;
         api('PUT', '/sections', body).then(function () { toast(e.target.checked ? 'Section shown' : 'Section hidden'); }).catch(fail);
@@ -727,30 +767,32 @@
 
   /* ----------------------------------------------------------- users */
   function viewUsers(main) {
-    api('GET', '/users').then(function (users) {
+    Promise.all([api('GET', '/users'), S.cache.coaches ? S.cache.coaches : loadCollection('coaches')]).then(function (res) {
+      var users = res[0];
       var roles = S.schema.roles;
       main.innerHTML = top('Users', 'Admins manage everything. Editors manage content and leads. Front desk sees leads only.', '<button class="btn btn--volt" id="uadd">' + icon('plus') + 'Add user</button>') +
         '<div class="card table-wrap"><table class="table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th></tr></thead><tbody>' + users.map(function (u) {
           return '<tr data-id="' + u.id + '"><td><b>' + esc(u.name) + '</b>' + (u.id === S.user.id ? ' <span class="muted">(you)</span>' : '') + '</td><td>' + esc(u.email) + '</td><td>' + esc(roles[u.role]) + '</td><td>' + (u.disabled ? '<span class="tag tag--closed">Disabled</span>' : u.mustChange ? '<span class="tag tag--contacted">Temp password</span>' : '<span class="tag tag--enrolled">Active</span>') + '</td></tr>';
         }).join('') + '</tbody></table></div>';
+      var coachSel = function (v) { return '<select name="coachId"><option value="">— Not a coach —</option>' + (S.cache.coaches || []).map(function (c) { return '<option value="' + c.id + '"' + (c.id === v ? ' selected' : '') + '>' + esc(c.name) + '</option>'; }).join('') + '</select>'; };
       var roleSel = function (v) { return '<select name="role">' + Object.keys(roles).map(function (k) { return '<option value="' + k + '"' + (k === v ? ' selected' : '') + '>' + esc(roles[k]) + '</option>'; }).join('') + '</select>'; };
       $('#uadd').addEventListener('click', function () {
-        var d = drawer('Add user', '<form id="uf" class="form"><div class="f"><label>Name</label><input type="text" name="name"></div><div class="f"><label>Email</label><input type="email" name="email"></div><div class="f"><label>Role</label>' + roleSel('editor') + '</div><div class="f"><label>Temporary password</label><input type="text" name="password" value="' + tempPass() + '"><span class="help">Share it privately. They will be asked to change it at first sign-in.</span></div><p class="err" id="uerr"></p></form>', '<span></span><button class="btn" data-save>Add user</button>');
+        var d = drawer('Add user', '<form id="uf" class="form"><div class="f"><label>Name</label><input type="text" name="name"></div><div class="f"><label>Email</label><input type="email" name="email"></div><div class="f"><label>Role</label>' + roleSel('editor') + '</div><div class="f"><label>Linked coach</label>' + coachSel('') + '<span class="help">For the Coach role: they see and mark attendance only for this coach’s batches.</span></div><div class="f"><label>Temporary password</label><input type="text" name="password" value="' + tempPass() + '"><span class="help">Share it privately. They will be asked to change it at first sign-in.</span></div><p class="err" id="uerr"></p></form>', '<span></span><button class="btn" data-save>Add user</button>');
         $('[data-save]', d).addEventListener('click', function () {
           var f = $('#uf');
-          api('POST', '/users', { name: f.name.value, email: f.email.value, role: f.role.value, password: f.password.value }).then(function () { toast('User added'); closeLayer(); viewUsers(main); }).catch(function (err) { $('#uerr').textContent = err.message; });
+          api('POST', '/users', { name: f.name.value, email: f.email.value, role: f.role.value, password: f.password.value, coachId: f.coachId.value }).then(function () { toast('User added'); closeLayer(); viewUsers(main); }).catch(function (err) { $('#uerr').textContent = err.message; });
         });
       });
       $('tbody', main).addEventListener('click', function (e) {
         var tr = e.target.closest('tr[data-id]'); if (!tr) return;
         var u = users.find(function (x) { return x.id === tr.getAttribute('data-id'); });
-        var d = drawer(u.name, '<form id="uf" class="form"><div class="f"><label>Name</label><input type="text" name="name" value="' + esc(u.name) + '"></div><div class="f"><label>Email</label><input type="text" value="' + esc(u.email) + '" disabled></div><div class="f"><label>Role</label>' + roleSel(u.role) + '</div>' +
+        var d = drawer(u.name, '<form id="uf" class="form"><div class="f"><label>Name</label><input type="text" name="name" value="' + esc(u.name) + '"></div><div class="f"><label>Email</label><input type="text" value="' + esc(u.email) + '" disabled></div><div class="f"><label>Role</label>' + roleSel(u.role) + '</div><div class="f"><label>Linked coach</label>' + coachSel(u.coachId) + '</div>' +
           '<label class="switch"><input type="checkbox" name="disabled"' + (u.disabled ? ' checked' : '') + '> Disable sign-in</label>' +
           '<div class="f"><label>Reset password</label><input type="text" name="password" placeholder="Leave empty to keep the current one"></div><p class="err" id="uerr"></p></form>',
           (u.id === S.user.id ? '<span></span>' : '<button class="btn btn--danger btn--sm" data-del>' + icon('trash') + 'Delete</button>') + '<button class="btn" data-save>Save</button>');
         $('[data-save]', d).addEventListener('click', function () {
           var f = $('#uf');
-          var body = { name: f.name.value, role: f.role.value, disabled: f.disabled.checked };
+          var body = { name: f.name.value, role: f.role.value, disabled: f.disabled.checked, coachId: f.coachId.value };
           if (f.password.value) body.password = f.password.value;
           api('PUT', '/users/' + u.id, body).then(function () { toast('Saved'); closeLayer(); viewUsers(main); }).catch(function (err) { $('#uerr').textContent = err.message; });
         });
